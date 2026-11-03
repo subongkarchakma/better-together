@@ -52,7 +52,7 @@ export default function CreateEventPage() {
       year: 'numeric',
     }).format(date);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
   const formData = new FormData(e.currentTarget);
@@ -72,7 +72,21 @@ export default function CreateEventPage() {
       : "",
   };
 
-  console.log("Event Data:", eventData);
+  try {
+  const response = await fetch("http://localhost:8000/create-event", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(eventData),
+  });
+
+  const result = await response.json();
+
+  console.log(result);
+} catch (error) {
+  console.error("Error creating event:", error);
+}
 };
 
   return (

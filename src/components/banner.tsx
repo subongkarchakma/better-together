@@ -7,6 +7,7 @@ import {
   Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const stats = [
   { icon: Users, value: "820+", label: "Active Neighbors", color: "text-emerald-600 dark:text-emerald-400" },
@@ -19,7 +20,7 @@ export function Banner() {
   return (
     <section
       id="drives"
-      className="bg-gradient-to-b from-emerald-100/70 via-rose-50/40 to-background dark:from-emerald-950/40 dark:via-background dark:to-background"
+      className="bg-linear-to-b from-emerald-100/70 via-rose-50/40 to-background dark:from-emerald-950/40 dark:via-background dark:to-background"
     >
       <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center sm:px-6">
         {/* Badge */}
@@ -50,17 +51,19 @@ export function Banner() {
             size="lg"
             className="rounded-full bg-emerald-600 px-5 text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-700"
           >
-            Explore Upcoming Drives
+            Explore Upcoming Events
             <ArrowRight data-icon="inline-end" />
           </Button>
+          <Link href={'/create-event'}>
           <Button
             size="lg"
             variant="outline"
             className="rounded-full bg-white/80 px-5 dark:bg-input/30"
           >
             <Sprout data-icon="inline-start" className="text-emerald-600 dark:text-emerald-400" />
-            Host Your Own Drive
+            Create Your Own Event
           </Button>
+          </Link>
         </div>
 
         {/* Stats */}
