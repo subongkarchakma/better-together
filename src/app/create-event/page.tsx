@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   CalendarDays,
   ImagePlus,
@@ -36,7 +38,7 @@ const eventTypes = [
   'Plantation',
   'Donation',
   'Blood Donation',
-  'Community Support',
+  'Education',
   'Awareness Campaign',
   'Other',
 ];
@@ -44,6 +46,9 @@ const eventTypes = [
 export default function CreateEventPage() {
   const [eventDate, setEventDate] = useState<Date>();
   const [eventType, setEventType] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const router = useRouter();
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat('en', {
@@ -53,41 +58,53 @@ export default function CreateEventPage() {
     }).format(date);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
 
-  const eventData = {
-    title: formData.get("title"),
-    description: formData.get("description"),
-    eventType,
-    thumbnail: formData.get("thumbnail"),
-    location: formData.get("location"),
-    eventDate: eventDate
-      ? `${eventDate.getFullYear()}-${String(
-          eventDate.getMonth() + 1
-        ).padStart(2, "0")}-${String(
-          eventDate.getDate()
-        ).padStart(2, "0")}`
-      : "",
+    const eventData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      eventType,
+      thumbnail: formData.get('thumbnail'),
+      location: formData.get('location'),
+      eventDate: eventDate
+        ? `${eventDate.getFullYear()}-${String(
+            eventDate.getMonth() + 1,
+          ).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`
+        : '',
+    };
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch('http://localhost:8000/create-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to create event');
+      }
+
+      toast.success('Event created successfully!');
+
+      router.push('/events');
+    } catch (error) {
+      console.error('Error creating event:', error);
+
+      toast.error(
+        error instanceof Error ? error.message : 'Something went wrong!',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  try {
-  const response = await fetch("http://localhost:8000/create-event", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(eventData),
-  });
-
-  const result = await response.json();
-
-  console.log(result);
-} catch (error) {
-  console.error("Error creating event:", error);
-}
-};
 
   return (
     <main className="min-h-screen bg-[#F7F9F6] px-4 py-10 md:px-8 md:py-16">
@@ -365,10 +382,12 @@ export default function CreateEventPage() {
 
                   <Button
                     type="submit"
+                    disabled={isSubmitting}
                     className="h-12 rounded-xl bg-[#39823A] px-7 font-semibold text-white hover:bg-[#2E6C30]"
                   >
-                    Create Event
-                    <ArrowRight className="ml-2 size-4" />
+                    {isSubmitting ? 'Creating Event...' : 'Create Event'}
+
+                    {!isSubmitting && <ArrowRight className="ml-2 size-4" />}
                   </Button>
                 </div>
               </div>
