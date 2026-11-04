@@ -383,7 +383,7 @@ export default function CreateEventPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="h-12 rounded-xl bg-[#39823A] px-7 font-semibold text-white hover:bg-[#2E6C30]"
+                    className="h-12 rounded-xl cursor-pointer bg-[#39823A] px-7 font-semibold text-white hover:bg-[#2E6C30]"
                   >
                     {isSubmitting ? 'Creating Event...' : 'Create Event'}
 
