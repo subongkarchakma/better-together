@@ -1,23 +1,16 @@
 import { Button } from '@/components/ui/button';
+import { IEvent } from '@/lib/event';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface IEvent {
-  _id: string;
-  title: string;
-  description: string;
-  eventType: string;
-  thumbnail: string;
-  location: string;
-  eventDate: string;
-}
+
 
 const AllEventsPage = async () => {
   let events: IEvent[] = [];
 
   try {
-    const res = await fetch('http://localhost:8000/events', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
       cache: 'no-store',
     });
 
@@ -33,15 +26,15 @@ const AllEventsPage = async () => {
         {/* Page Heading */}
         <div className="mb-12 text-center">
           <p className="mb-3 font-semibold uppercase tracking-widest text-green-600">
-            Make a Difference
+            Future Community Drives
           </p>
 
           <h1 className="text-3xl font-bold text-gray-900 md:text-5xl">
-            Discover All Events
+            Upcoming Events
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-gray-500">
-            Explore meaningful events, connect with your community, and become
+            Explore Upcoming events, connect with your community, and become
             part of something bigger.
           </p>
         </div>
@@ -100,16 +93,16 @@ const AllEventsPage = async () => {
                 </div>
               </div>
               <div>
-  <Button className="group h-11 w-full rounded-none bg-[#39823A] px-5 text-white transition-colors hover:bg-[#2E6C30]">
-    <Link
-      href={`/events/${event._id}`}
-      className="flex items-center justify-between"
-    >
-      <span className="flex-1 text-center">View Event</span>
-      <ArrowUpRight className="size-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-    </Link>
-  </Button>
-</div>
+                <Button className="group h-11 w-full rounded-none bg-[#39823A] px-5 text-white transition-colors hover:bg-[#2E6C30]">
+                  <Link
+                    href={`/events/${event._id}`}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="flex-1 text-center">View Event</span>
+                    <ArrowUpRight className="size-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           ))}
         </div>

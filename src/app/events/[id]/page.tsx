@@ -21,7 +21,7 @@ const EventDetailsPage = async ({
 }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:8000/events/${id}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
     cache: "no-store",
   });
 

@@ -1,6 +1,6 @@
 
-import { Banner } from "@/components/banner";
-import { Features } from "@/components/features";
+import { Banner } from "@/components/home/banner";
+import { Features } from "@/components/home/features";
 
 export default function Home() {
   return (
