@@ -1,63 +1,60 @@
-'use client'
-import { Button } from "@/components/ui/button"
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { authClient } from "@/lib/auth-client"
-import Link from "next/link"
-import { redirect } from "next/navigation"
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { authClient } from '@/lib/auth-client';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export default function RegisterPage() {
+  const handleEmailSignUp = async (e: React.SubmitEvent<HTMLElement>) => {
+    e.preventDefault();
 
-     const handleEmailSignUp = async (e:React.SubmitEvent<HTMLElement>) => {
+    const formData = new FormData(e.target);
+    const user = Object.fromEntries(formData.entries()) as {
+      name: string;
+      image: string;
+      email: string;
+      password: string;
+    };
 
-        e.preventDefault()
+    const { data, error } = await authClient.signUp.email({
+      ...user,
+    });
 
-        const formData = new FormData(e.target)
-        const user = Object.fromEntries(formData.entries()) as {name:string, image: string, email:string, password:string}
-
-        // console.log(user)
-
-        const {data, error} = await authClient.signUp.email({
-            ...user,
-        })
-
-        if(data) {
-            redirect('/')
-        }
-
-        if(error) {
-            console.log(error)
-        }
-
+    if (data) {
+      redirect('/');
     }
 
+    if (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className={"flex flex-col gap-6 max-w-7xl mx-auto my-8"} >
+    <div className={'flex flex-col gap-6 max-w-7xl mx-auto my-8'}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with Google account
-          </CardDescription>
+          <CardDescription>Login with Google account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailSignUp}>
             <FieldGroup>
               <Field>
-                
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
@@ -125,9 +122,9 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }
