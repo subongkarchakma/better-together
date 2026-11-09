@@ -110,13 +110,13 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        {/* <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>
             © {new Date().getFullYear()} BetterTogether. Built with care for
             community service and social development.
           </p>
           <p className="flex items-center gap-1">Made for a better tomorrow</p>
-        </div> */}
+        </div>
       </div>
     </footer>
   );
