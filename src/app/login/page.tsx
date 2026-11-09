@@ -1,5 +1,12 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { authClient } from '@/lib/auth-client';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Eye, EyeSlash } from '@gravity-ui/icons';
+import { InputGroup, Label, TextField } from '@heroui/react';
 import {
   Card,
   CardContent,
@@ -14,19 +21,17 @@ import {
   FieldLabel,
   FieldSeparator,
 } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { authClient } from '@/lib/auth-client';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
+  const [isVisible, setIsVisible] = useState(false);
+
   const handleEmailLogin = async (e: React.SubmitEvent<HTMLElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const user = Object.fromEntries(formData.entries()) as {
-      name: string;
-      image: string;
       email: string;
       password: string;
     };
@@ -36,6 +41,7 @@ export default function LoginPage() {
     });
 
     if (data) {
+      toast.success('✅ Successfully Log in! Welcome to Better Together!');
       redirect('/');
     }
 
@@ -64,26 +70,39 @@ export default function LoginPage() {
                   required
                 />
               </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" name="password" type="password" required />
-              </Field>
+
+              <TextField className="w-full" name="password">
+                <Label>Password</Label>
+                <InputGroup>
+                  <InputGroup.Input
+                    className="w-full"
+                    type={isVisible ? 'text' : 'password'}
+                  />
+                  <InputGroup.Suffix className="pe-0">
+                    <Button
+                      aria-label={isVisible ? 'Hide password' : 'Show password'}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setIsVisible(!isVisible)}
+                    >
+                      {isVisible ? (
+                        <Eye className="size-4" />
+                      ) : (
+                        <EyeSlash className="size-4" />
+                      )}
+                    </Button>
+                  </InputGroup.Suffix>
+                </InputGroup>
+              </TextField>
+
               <Field>
                 <Button type="submit">Sign in</Button>
 
-               <div className='py-5'>
-                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                  Or continue with
-                </FieldSeparator>
-               </div>
+                <div className="py-5">
+                  <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+                    Or continue with
+                  </FieldSeparator>
+                </div>
                 <Field>
                   <Button variant="outline" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

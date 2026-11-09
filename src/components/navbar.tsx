@@ -3,8 +3,25 @@
 import { CalendarCheck, HeartHandshake, LogIn, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 export function Navbar() {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  // console.log(user);
+  const handleSignOut = () => {
+    authClient.signOut();
+  };
+
   function toggleTheme() {
     document.documentElement.classList.toggle('dark');
   }
@@ -51,10 +68,41 @@ export function Navbar() {
             <Sun className="hidden dark:block" />
             <Moon className="dark:hidden" />
           </Button>
-          <Button className="rounded-full" variant="outline">
-            <LogIn data-icon="inline-start" />
-            Log in
-          </Button>
+          {user ? (
+            <div className='flex items-center gap-1'>
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Avatar>
+                      <AvatarImage src={user?.image as string} />
+                      <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  }
+                ></PopoverTrigger>
+                <PopoverContent>
+                  <PopoverHeader>
+                    <PopoverTitle>{user?.name}</PopoverTitle>
+                    <PopoverDescription>
+                      Description text here.
+                    </PopoverDescription>
+                    <Button onClick={handleSignOut} variant={'destructive'}>
+                      Sign out
+                    </Button>
+                  </PopoverHeader>
+                </PopoverContent>
+              </Popover>
+              <Button onClick={handleSignOut} variant={'destructive'}>
+                Sign out
+              </Button>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button className="rounded-full" variant="outline">
+                <LogIn data-icon="inline-start" />
+                Log in
+              </Button>
+            </Link>
+          )}
         </div>
       </nav>
     </header>

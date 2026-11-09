@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const handleEmailSignUp = async (e: React.SubmitEvent<HTMLElement>) => {
@@ -36,6 +37,7 @@ export default function RegisterPage() {
     });
 
     if (data) {
+        toast.success('✅ Account registered Successfully! Welcome to Better Together!');
       redirect('/');
     }
 
@@ -99,6 +101,7 @@ export default function RegisterPage() {
                   required
                 />
               </Field>
+
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
