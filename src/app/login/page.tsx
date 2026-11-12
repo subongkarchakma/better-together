@@ -41,7 +41,7 @@ export default function LoginPage() {
     });
 
     if (data) {
-      toast.success('✅ Successfully Log in! Welcome to Better Together!');
+      toast.success('Successfully Log in! Welcome to Better Together!');
       redirect('/');
     }
 

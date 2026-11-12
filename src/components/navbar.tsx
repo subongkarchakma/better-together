@@ -1,6 +1,15 @@
 'use client';
 
-import { CalendarCheck, HeartHandshake, LogIn, Moon, Sun } from 'lucide-react';
+import {
+  CalendarCheck,
+  CalendarDays,
+  HeartHandshake,
+  LayoutDashboard,
+  LogIn,
+  Moon,
+  PlusCircle,
+  Sun,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
@@ -18,8 +27,8 @@ export function Navbar() {
   const { data: session } = authClient.useSession();
   const user = session?.user;
   // console.log(user);
-  const handleSignOut = () => {
-    authClient.signOut();
+  const handleSignOut = async () => {
+    await authClient.signOut();
   };
 
   function toggleTheme() {
@@ -69,7 +78,7 @@ export function Navbar() {
             <Moon className="dark:hidden" />
           </Button>
           {user ? (
-            <div className='flex items-center gap-1'>
+            <div className="flex items-center gap-1">
               <Popover>
                 <PopoverTrigger
                   render={
@@ -85,13 +94,41 @@ export function Navbar() {
                     <PopoverDescription>
                       Description text here.
                     </PopoverDescription>
+
+                    <div className="space-y-1 py-2">
+                      <Link
+                        href="/create-event"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
+                      >
+                        <PlusCircle size={17} />
+                        Create Event
+                      </Link>
+
+                      <Link
+                        href="/manage-events"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
+                      >
+                        <LayoutDashboard size={17} />
+                        Manage Event
+                      </Link>
+
+                      <Link
+                        href="/my-booking"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
+                      >
+                        <CalendarDays size={17} />
+                        Joined Event
+                      </Link>
+                    </div>
                     <Button onClick={handleSignOut} variant={'destructive'}>
+                      <LogIn data-icon="inline-start" />
                       Sign out
                     </Button>
                   </PopoverHeader>
                 </PopoverContent>
               </Popover>
               <Button onClick={handleSignOut} variant={'destructive'}>
+                <LogIn data-icon="inline-start" />
                 Sign out
               </Button>
             </div>

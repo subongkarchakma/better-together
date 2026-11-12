@@ -98,8 +98,8 @@ const AllEventsPage = async () => {
                     href={`/events/${event._id}`}
                     className="flex items-center justify-between"
                   >
-                    <span className="flex-1 text-center">View Event</span>
-                    <ArrowUpRight className="size-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    <span className="flex text-center">View Event</span>
+                    <ArrowUpRight  />
                   </Link>
                 </Button>
               </div>

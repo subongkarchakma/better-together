@@ -37,7 +37,7 @@ export default function RegisterPage() {
     });
 
     if (data) {
-        toast.success('✅ Account registered Successfully! Welcome to Better Together!');
+        toast.success('Account registered Successfully! Welcome to Better Together!');
       redirect('/');
     }
 

@@ -3,6 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   CalendarDays,
   ImagePlus,
@@ -14,11 +19,6 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+
 
 const eventTypes = [
   'Cleanup',
@@ -47,6 +48,8 @@ export default function CreateEventPage() {
   const [eventDate, setEventDate] = useState<Date>();
   const [eventType, setEventType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // const { data: session, } = authClient.useSession();
+  // const userEmail = session?.user?.email;
 
   const router = useRouter();
 
@@ -61,7 +64,6 @@ export default function CreateEventPage() {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-
     const eventData = {
       title: formData.get('title'),
       description: formData.get('description'),
@@ -78,7 +80,7 @@ export default function CreateEventPage() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-event`, {
+      const response = await fetch('/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,21 +88,15 @@ export default function CreateEventPage() {
         body: JSON.stringify(eventData),
       });
 
-      const result = await response.json();
+      // const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to create event');
+        toast.error('Error creating event:');
       }
 
       toast.success('Event created successfully!');
 
       router.push('/events');
-    } catch (error) {
-      console.error('Error creating event:', error);
-
-      toast.error(
-        error instanceof Error ? error.message : 'Something went wrong!',
-      );
     } finally {
       setIsSubmitting(false);
     }
@@ -385,7 +381,7 @@ export default function CreateEventPage() {
                     disabled={isSubmitting}
                     className="h-12 rounded-xl cursor-pointer bg-[#39823A] px-7 font-semibold text-white hover:bg-[#2E6C30]"
                   >
-                    {isSubmitting ? 'Creating Event...' : 'Create Event'}
+                    {isSubmitting ? 'Publishing Event...' : 'Publish Event'}
 
                     {!isSubmitting && <ArrowRight className="ml-2 size-4" />}
                   </Button>

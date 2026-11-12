@@ -17,7 +17,7 @@ type PlatformLink = {
 const platformLinks: PlatformLink[] = [
   { label: 'Upcoming Events', href: '/events', icon: CalendarCheck },
   { label: 'Create an Event', href: '/create-event', icon: SquarePen },
-  { label: 'Manage My Events', href: '/events' },
+  { label: 'Manage My Events', href: '/manage-events' },
   { label: 'My Joined Events', href: '/events' },
 ];
 
