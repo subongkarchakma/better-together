@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useSession } from '@/lib/auth-client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -33,7 +35,6 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 
-
 const eventTypes = [
   'Cleanup',
   'Plantation',
@@ -52,6 +53,14 @@ export default function CreateEventPage() {
   // const userEmail = session?.user?.email;
 
   const router = useRouter();
+
+  const { data: session, isPending } = useSession();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.replace('/login');
+    }
+  }, [session, isPending, router]);
 
   const formatDate = (date: Date) =>
     new Intl.DateTimeFormat('en', {
@@ -88,7 +97,10 @@ export default function CreateEventPage() {
         body: JSON.stringify(eventData),
       });
 
-      // const result = await response.json();
+      if (response.status === 401) {
+        router.replace('/login');
+        return;
+      }
 
       if (!response.ok) {
         toast.error('Error creating event:');
@@ -101,6 +113,10 @@ export default function CreateEventPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isPending || !session) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-[#F7F9F6] px-4 py-10 md:px-8 md:py-16">
@@ -187,6 +203,20 @@ export default function CreateEventPage() {
                     id="title"
                     name="title"
                     placeholder="e.g. Community Tree Plantation 2026"
+                    className="h-12 rounded-xl border-gray-200 px-4 shadow-none focus-visible:ring-[#39823A]"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-sm font-semibold">
+                    Event Organizer <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Input
+                    id="organizer"
+                    name="organizer"
+                    placeholder="e.g. Parami Oikhyo Parishad"
                     className="h-12 rounded-xl border-gray-200 px-4 shadow-none focus-visible:ring-[#39823A]"
                     required
                   />

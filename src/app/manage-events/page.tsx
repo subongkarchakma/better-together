@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -27,7 +28,7 @@ type ManageEvent = {
   eventDate: string;
   location: string;
   description: string;
-  organizer: string;
+  creatorEmail: string;
   thumbnail: string;
 };
 
@@ -36,29 +37,6 @@ const categoryIcons: Record<string, LucideIcon> = {
   'Food Drive': UtensilsCrossed,
   Cleanup: Leaf,
 };
-
-const initialEvents: ManageEvent[] = [
-  {
-    _id: 'test-1',
-    title: 'Test 1',
-    eventType: 'Plantation',
-    eventDate: '2026-11-05',
-    location: 'Fugiat ut quasi non',
-    description: 'Test',
-    organizer: 'Dolore expedita dese',
-    thumbnail: '/gallery/tree-plantation.jpg',
-  },
-  {
-    _id: 'test-2',
-    title: 'Test 2',
-    eventType: 'Food Drive',
-    eventDate: '2026-11-07',
-    location: 'Lorem tempora dolore',
-    description: 'Et natus velit magni',
-    organizer: 'Dolore expedita dese',
-    thumbnail: '/gallery/food-relief.jpg',
-  },
-];
 
 function formatDate(eventDate: string) {
   return new Date(`${eventDate}T00:00:00`).toLocaleDateString('en-US', {
@@ -70,7 +48,50 @@ function formatDate(eventDate: string) {
 }
 
 export default function ManageEventsPage() {
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState<ManageEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Fetch the logged-in user's events
+  useEffect(() => {
+    async function fetchMyEvents() {
+      try {
+        const response = await fetch('/api/my-events', {
+          cache: 'no-store',
+        });
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+          router.replace(`/login?callbackURL=${encodeURIComponent(pathname)}`);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch events.');
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid events response.');
+        }
+
+        setEvents(data);
+      } catch (error) {
+        console.error('Fetch events error:', error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Something went wrong while fetching events.',
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchMyEvents();
+  }, [router, pathname]);
 
   function handleView(event: ManageEvent) {
     toast.info(`Opening "${event.title}"`);
@@ -81,9 +102,7 @@ export default function ManageEventsPage() {
   }
 
   function handleDelete(event: ManageEvent) {
-    setEvents((current) =>
-      current.filter((item) => item._id !== event._id),
-    );
+    setEvents((current) => current.filter((item) => item._id !== event._id));
     toast.success(`"${event.title}" deleted`);
   }
 
@@ -121,8 +140,16 @@ export default function ManageEventsPage() {
 
         <Separator className="mt-8" />
 
-        {/* Events grid */}
-        {events.length > 0 ? (
+        {/* Loading state */}
+        {isLoading ? (
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 py-16">
+            <div className="size-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+            <p className="text-sm text-muted-foreground">
+              Loading your events...
+            </p>
+          </div>
+        ) : events.length > 0 ? (
+          /* Events grid */
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => {
               const CategoryIcon = categoryIcons[event.eventType] ?? Leaf;
@@ -133,7 +160,7 @@ export default function ManageEventsPage() {
                   className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-shadow hover:shadow-md"
                 >
                   {/* Cover image with overlays */}
-                  <div className="relative aspect-[8/5] overflow-hidden bg-muted">
+                  <div className="relative aspect-8/5 overflow-hidden bg-muted">
                     <Image
                       src={event.thumbnail}
                       alt={event.title}
@@ -169,7 +196,7 @@ export default function ManageEventsPage() {
                     <div className="mt-3 border-t border-border/60 pt-3">
                       <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <User className="size-4 shrink-0" />
-                        {event.organizer}
+                        {event.creatorEmail}
                       </p>
                     </div>
 
@@ -182,6 +209,7 @@ export default function ManageEventsPage() {
                       >
                         View
                       </Button>
+
                       <Button
                         className="h-9 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-950"
                         onClick={() => handleEdit(event)}
@@ -189,6 +217,7 @@ export default function ManageEventsPage() {
                         <Pencil data-icon="inline-start" />
                         Edit
                       </Button>
+
                       <Button
                         variant="destructive"
                         className="h-9"
@@ -210,11 +239,14 @@ export default function ManageEventsPage() {
             <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
               <CalendarDays className="size-6" />
             </span>
+
             <h2 className="mt-4 text-lg font-bold">No events yet</h2>
+
             <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
               You haven&apos;t published any community drive yet. Create one and
               it will show up right here.
             </p>
+
             <Link href="/create-event" className="mt-5 inline-block">
               <Button className="h-10 rounded-lg bg-teal-600 px-5 text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700">
                 <CirclePlus data-icon="inline-start" />

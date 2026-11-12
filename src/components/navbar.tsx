@@ -134,7 +134,7 @@ export function Navbar() {
             </div>
           ) : (
             <Link href="/login">
-              <Button className="rounded-full" variant="outline">
+              <Button className="rounded-lg text-white bg-[#2c722d]" variant="outline">
                 <LogIn data-icon="inline-start" />
                 Log in
               </Button>
