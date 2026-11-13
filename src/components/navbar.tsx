@@ -92,7 +92,7 @@ export function Navbar() {
                   <PopoverHeader>
                     <PopoverTitle>{user?.name}</PopoverTitle>
                     <PopoverDescription>
-                      Description text here.
+                      {user?.email}
                     </PopoverDescription>
 
                     <div className="space-y-1 py-2">
