@@ -49,11 +49,8 @@ export default function CreateEventPage() {
   const [eventDate, setEventDate] = useState<Date>();
   const [eventType, setEventType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const { data: session, } = authClient.useSession();
-  // const userEmail = session?.user?.email;
 
   const router = useRouter();
-
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
@@ -72,18 +69,31 @@ export default function CreateEventPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Validate event date
+    if (!eventDate) {
+      toast.error('Please select an event date.');
+      return;
+    }
+    if (!eventTypes) {
+      toast.error('Please select an event category.');
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
+
+    const formattedDate = [
+      eventDate.getFullYear(),
+      String(eventDate.getMonth() + 1).padStart(2, '0'),
+      String(eventDate.getDate()).padStart(2, '0'),
+    ].join('-');
+
     const eventData = {
       title: formData.get('title'),
       description: formData.get('description'),
       eventType,
       thumbnail: formData.get('thumbnail'),
       location: formData.get('location'),
-      eventDate: eventDate
-        ? `${eventDate.getFullYear()}-${String(
-            eventDate.getMonth() + 1,
-          ).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`
-        : '',
+      eventDate: formattedDate,
     };
 
     try {
@@ -103,20 +113,19 @@ export default function CreateEventPage() {
       }
 
       if (!response.ok) {
-        toast.error('Error creating event:');
+        const data = await response.json();
+        toast.error(data.message || 'Failed to create event.');
+        return;
       }
 
       toast.success('Event created successfully!');
-
       router.push('/events');
+    } catch {
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (isPending || !session) {
-    return null;
-  }
 
   return (
     <main className="min-h-screen bg-[#F7F9F6] px-4 py-10 md:px-8 md:py-16">

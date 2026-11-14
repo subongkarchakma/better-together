@@ -3,16 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IEvent } from "@/lib/event";
 
-interface IEvent {
-  _id: string;
-  title: string;
-  description: string;
-  eventType: string;
-  thumbnail: string;
-  location: string;
-  eventDate: string;
-}
 
 const EventDetailsPage = async ({
   params,

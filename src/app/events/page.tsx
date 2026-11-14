@@ -1,10 +1,8 @@
-import { Button } from '@/components/ui/button';
+
 import { IEvent } from '@/lib/event';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-
 
 const AllEventsPage = async () => {
   let events: IEvent[] = [];
@@ -93,15 +91,13 @@ const AllEventsPage = async () => {
                 </div>
               </div>
               <div>
-                <Button className="group h-11 w-full rounded-none bg-[#39823A] px-5 text-white transition-colors hover:bg-[#2E6C30]">
-                  <Link
-                    href={`/events/${event._id}`}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="flex text-center">View Event</span>
-                    <ArrowUpRight  />
-                  </Link>
-                </Button>
+                <Link
+                  href={`/events/${event._id}`}
+                  className="group flex h-11 w-full items-center justify-between rounded-none bg-[#39823A] px-5 text-white transition-colors hover:bg-[#2E6C30]"
+                >
+                  <span>View Event</span>
+                  <ArrowUpRight className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </Link>
               </div>
             </div>
           ))}

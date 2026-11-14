@@ -101,9 +101,27 @@ export default function ManageEventsPage() {
     toast.info(`Editing "${event.title}"`);
   }
 
-  function handleDelete(event: ManageEvent) {
-    setEvents((current) => current.filter((item) => item._id !== event._id));
-    toast.success(`"${event.title}" deleted`);
+  async function handleDelete(event: ManageEvent) {
+    try {
+      const response = await fetch(`/api/my-events/${event._id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete event.');
+      }
+
+      // Update the UI after successful deletion
+      setEvents((current) => current.filter((item) => item._id !== event._id));
+
+      toast.success(`"${event.title}" deleted successfully!`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Something went wrong!',
+      );
+    }
   }
 
   return (

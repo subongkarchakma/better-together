@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,13 +19,22 @@ import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function RegisterPage() {
-  const handleEmailSignUp = async (e: React.SubmitEvent<HTMLElement>) => {
+  const [password, setPassword] = useState('');
+
+  const passwordRules = {
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    minLength: password.length >= 6,
+  };
+  const handleEmailSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
+
     const user = Object.fromEntries(formData.entries()) as {
       name: string;
       image: string;
@@ -32,17 +42,30 @@ export default function RegisterPage() {
       password: string;
     };
 
+    // Password validation
+    const hasUppercase = /[A-Z]/.test(user.password);
+    const hasLowercase = /[a-z]/.test(user.password);
+    const hasMinLength = user.password.length >= 6;
+
+    if (!hasUppercase || !hasLowercase || !hasMinLength) {
+      toast.error('Please meet all password requirements.');
+      return;
+    }
+
     const { data, error } = await authClient.signUp.email({
       ...user,
     });
 
-    if (data) {
-        toast.success('Account registered Successfully! Welcome to Better Together!');
-      redirect('/');
+    if (error) {
+      toast.error(error.message);
+      return;
     }
 
-    if (error) {
-      console.log(error);
+    if (data) {
+      toast.success(
+        'Account registered successfully! Welcome to Better Together!',
+      );
+      redirect('/');
     }
   };
 
@@ -103,17 +126,50 @@ export default function RegisterPage() {
               </Field>
 
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+
+                <div className="space-y-1 text-xs">
+                  <p
+                    className={
+                      passwordRules.uppercase
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    }
                   >
-                    Forgot your password?
-                  </a>
+                    ✓ At least one uppercase letter (A-Z)
+                  </p>
+
+                  <p
+                    className={
+                      passwordRules.lowercase
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    }
+                  >
+                    ✓ At least one lowercase letter (a-z)
+                  </p>
+
+                  <p
+                    className={
+                      passwordRules.minLength
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    }
+                  >
+                    ✓ Minimum 6 characters
+                  </p>
                 </div>
-                <Input id="password" name="password" type="password" required />
               </Field>
+
               <Field>
                 <Button type="submit">Sign Up</Button>
                 <FieldDescription className="text-center">
