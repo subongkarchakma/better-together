@@ -7,6 +7,23 @@ import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   CalendarDays,
   CirclePlus,
@@ -37,6 +54,15 @@ const categoryIcons: Record<string, LucideIcon> = {
   'Food Drive': UtensilsCrossed,
   Cleanup: Leaf,
 };
+const eventTypes = [
+  'Cleanup',
+  'Plantation',
+  'Donation',
+  'Blood Donation',
+  'Community Support',
+  'Awareness Campaign',
+  'Other',
+];
 
 function formatDate(eventDate: string) {
   return new Date(`${eventDate}T00:00:00`).toLocaleDateString('en-US', {
@@ -50,6 +76,17 @@ function formatDate(eventDate: string) {
 export default function ManageEventsPage() {
   const [events, setEvents] = useState<ManageEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<ManageEvent | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    eventType: '',
+    thumbnail: '',
+    location: '',
+    eventDate: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -98,7 +135,76 @@ export default function ManageEventsPage() {
   }
 
   function handleEdit(event: ManageEvent) {
-    toast.info(`Editing "${event.title}"`);
+    setSelectedEvent(event);
+
+    setEditForm({
+      title: event.title,
+      description: event.description,
+      eventType: event.eventType,
+      thumbnail: event.thumbnail,
+      location: event.location,
+      eventDate: event.eventDate,
+    });
+
+    setIsEditOpen(true);
+  }
+
+  async function handleSaveChanges() {
+    if (!selectedEvent) return;
+
+    // Basic form validation
+    if (
+      !editForm.title.trim() ||
+      !editForm.description.trim() ||
+      !editForm.eventType ||
+      !editForm.thumbnail.trim() ||
+      !editForm.location.trim() ||
+      !editForm.eventDate
+    ) {
+      toast.error('Please fill in all event details.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const response = await fetch(`/api/my-events/${selectedEvent._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editForm),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        router.replace(`/login?callbackURL=${encodeURIComponent(pathname)}`);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update event.');
+      }
+
+      // Update the UI without refreshing the page
+      setEvents((current) =>
+        current.map((event) =>
+          event._id === selectedEvent._id ? { ...event, ...editForm } : event,
+        ),
+      );
+
+      setIsEditOpen(false);
+      setSelectedEvent(null);
+
+      toast.success('Event updated successfully!');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Something went wrong!',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function handleDelete(event: ManageEvent) {
@@ -274,6 +380,122 @@ export default function ManageEventsPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Edit Event</DialogTitle>
+
+            <DialogDescription>
+              Update your event information below.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedEvent && (
+            <div className="space-y-4">
+              {/* Event Title */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Event Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editForm.title}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, title: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  rows={4}
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Event Category */}
+              <div className="space-y-2">
+                <Label>Event Category</Label>
+                <Select
+                  value={editForm.eventType}
+                  onValueChange={(value) =>
+                    setEditForm({ ...editForm, eventType: value ?? '' })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose an event category" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {eventTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Thumbnail */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-thumbnail">Thumbnail URL</Label>
+                <Input
+                  id="edit-thumbnail"
+                  value={editForm.thumbnail}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, thumbnail: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Location */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-location">Location</Label>
+                <Input
+                  id="edit-location"
+                  value={editForm.location}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, location: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Event Date */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-date">Event Date</Label>
+                <Input
+                  id="edit-date"
+                  type="date"
+                  value={editForm.eventDate}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, eventDate: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-2">
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+                  Cancel
+                </Button>
+
+                <Button
+                  className="bg-indigo-600 text-white hover:bg-indigo-700"
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
