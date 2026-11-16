@@ -25,6 +25,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   CalendarDays,
   CirclePlus,
   Leaf,
@@ -342,15 +353,41 @@ export default function ManageEventsPage() {
                         Edit
                       </Button>
 
-                      <Button
-                        variant="destructive"
-                        className="h-9"
-                        aria-label={`Delete ${event.title}`}
-                        onClick={() => handleDelete(event)}
-                      >
-                        <Trash data-icon="inline-start" />
-                        Delete
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger
+                          render={
+                            <Button
+                              variant="destructive"
+                              className="h-9"
+                              aria-label={`Delete ${event.title}`}
+                            >
+                              <Trash data-icon="inline-start" />
+                              Delete
+                            </Button>
+                          }
+                        >
+                          Show Dialog
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Are you absolutely sure?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete your account from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(event)}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </article>
